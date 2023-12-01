@@ -19,12 +19,13 @@ export function $(page: Page, selector: string): Promise<ElementHandle<Element> 
                 ): Element | null | undefined {
                     const shadowRoot = Array.from(context.querySelectorAll(
                         selector.mainSelector,
-                    )).map(x => {
+                    )).map(x => x.shadowRoot).map(x => {
+                        if (!shadowRoot) return null;
                         if (typeof selector.shadowDOMSelector === "string")
-                            return x.querySelector(
+                            return x?.querySelector(
                                 selector.shadowDOMSelector,
                             );
-                        else return query(selector.shadowDOMSelector, x);
+                        else return query(selector.shadowDOMSelector, x || context);
 
                     }
 
