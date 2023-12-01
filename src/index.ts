@@ -3,7 +3,7 @@ import { ElementHandle, Page } from "puppeteer";
 
 import { Selector, parse } from "./selector";
 
-export function $(page: Page, selector: string): Promise<ElementHandle | null> {
+export function $(page: Page, selector: string): Promise<ElementHandle<Element> | ElementHandle<Node> | null> {
     const parsedSelector = parse(selector);
 
     if (not(parsedSelector)) return page.$(selector);
