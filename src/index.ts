@@ -15,19 +15,26 @@ export function $(page: Page, selector: string): Promise<ElementHandle | null> {
 
                 function query(
                     selector: Selector,
-                    context: Document | ShadowRoot,
-                ): Element | null {
-                    const shadowRoot = context.querySelector(
+                    context: Document | ShadowRoot | Element,
+                ): Element | null | undefined {
+                    const shadowRoot = Array.from(context.querySelectorAll(
                         selector.mainSelector,
-                    )?.shadowRoot;
+                    )).map(x => {
+                        if (typeof selector.shadowDOMSelector === "string")
+                            return x.querySelector(
+                                selector.shadowDOMSelector,
+                            );
+                        else return query(selector.shadowDOMSelector, x);
 
-                    if (!shadowRoot) return null;
+                    }
 
-                    if (typeof selector.shadowDOMSelector === "string")
-                        return shadowRoot!.querySelector(
-                            selector.shadowDOMSelector,
-                        );
-                    else return query(selector.shadowDOMSelector, shadowRoot!);
+
+                        // x.shadowRoot?.querySelector(selector.shadowDOMSelector.toString())
+                    ).filter(x => x);
+
+                    if (!shadowRoot || shadowRoot.length < 1) return null;
+
+                    return shadowRoot[0];
                 }
             }, JSON.stringify(parsedSelector))
             .then(source => source.asElement()),
